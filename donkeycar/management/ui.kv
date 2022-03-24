@@ -464,6 +464,10 @@
                 text: 'Trapezoidal mask'
                 on_press: root.set_mask(self.state)
             ToggleButton:
+                id: button_red_select_mask
+                text: 'Red mask'
+                on_press: root.set_red_select_mask(self.state)
+            ToggleButton:
                 id: button_crop
                 text: 'Cropping mask'
                 on_press: root.set_crop(self.state)

@@ -19,6 +19,7 @@ HEIGHT = 480
 # Example augumentations
 cropping = Augmentations.crop(0, 0, 100, 0, keep_size=True)
 mask = Augmentations.trapezoidal_mask(10, 630, 100, 300, 50, 480)
+red_selecting = Augmentations.red_select_mask()
 
 
 def preview_augmentations():
@@ -36,10 +37,12 @@ def preview_augmentations():
         if success:
             cropped = cropping.augment_image(frame)
             masked = mask.augment_image(frame)
+            red_selected = red_selecting.augment_image(frame)
             # Convert to RGB
             cv2.imshow('Preview', frame)
             cv2.imshow('Cropped', cropped)
             cv2.imshow('Trapezoidal Mask', masked)
+            cv2.imshow('RED Mask', red_selected)
             prompt = cv2.waitKey(1) & 0xFF
             if prompt == ord(' '):
                 # Store output

@@ -31,6 +31,36 @@ try:
             return augmentation
 
         @classmethod
+        def red_select_mask(cls):
+            """
+            Uses a binary mask to generate a trapezoidal region of interest.
+            Especially useful in filtering out uninteresting features from an
+            input image.
+            """
+
+            def _transform_images(images, random_state, parents, hooks):
+                # Transform a batch of images
+                transformed = []
+                mask = None
+                for image in images:
+                    img = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
+
+                    lower_red = np.array([30, 150, 50])
+                    upper_red = np.array([255, 255, 180])
+
+                    mask = cv2.inRange(img, lower_red, upper_red)
+                    res = cv2.bitwise_and(img, img, mask=mask)
+                    transformed.append(res)
+
+                return transformed
+
+            def _transform_keypoints(keypoints_on_images, random_state,parents, hooks):
+                return keypoints_on_images
+
+            augmentation = iaa.Lambda(func_images=_transform_images,
+                                      func_keypoints=_transform_keypoints)
+            return augmentation
+        @classmethod
         def trapezoidal_mask(cls, lower_left, lower_right, upper_left,
                              upper_right, min_y, max_y):
             """
@@ -111,6 +141,10 @@ try:
                             upper_right=config.ROI_TRAPEZE_UR,
                             min_y=config.ROI_TRAPEZE_MIN_Y,
                             max_y=config.ROI_TRAPEZE_MAX_Y)
+
+            elif aug_type == 'RED':
+                logger.info(f'Creating augmentation {aug_type}')
+                return Augmentations.red_select_mask()
 
             elif aug_type == 'MULTIPLY':
                 interval = getattr(config, 'AUG_MULTIPLY_RANGE', (0.5, 1.5))

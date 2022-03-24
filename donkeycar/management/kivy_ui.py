@@ -844,6 +844,15 @@ class PilotScreen(Screen):
             if 'TRAPEZE' in self.trans_list:
                 self.trans_list.remove('TRAPEZE')
 
+    def set_red_select_mask(self, state):
+        if state == 'down':
+            self.ids.status.text = 'RED mask on'
+            self.trans_list.append('RED')
+        else:
+            self.ids.status.text = 'RED mask off'
+            if 'RED' in self.trans_list:
+                self.trans_list.remove('RED')
+
     def set_crop(self, state):
         if state == 'down':
             self.ids.status.text = 'Crop on'
