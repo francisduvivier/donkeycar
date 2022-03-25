@@ -100,7 +100,7 @@ class Seekable(object):
             if len(self.cumulative_lengths) > 0 else 0
         self.seek_end_of_file()
         self.file.truncate()
-    
+
     def read_from(self, line_number):
         current_offset = self.file.tell()
         self.seek_line_start(line_number)
@@ -109,10 +109,10 @@ class Seekable(object):
         while len(contents) > 0:
             lines.append(contents)
             contents = self.readline()
-        
+
         self.file.seek(current_offset)
         return lines
-    
+
     def update_line(self, line_number, contents):
         lines = self.read_from(line_number)
         length = len(lines)
@@ -143,6 +143,7 @@ class Catalog(object):
     [ json object record ] \n
     ...
     '''
+
     def __init__(self, path, read_only=False, start_index=0):
         self.path = Path(os.path.expanduser(path))
         self.manifest = CatalogMetadata(self.path,
@@ -171,6 +172,7 @@ class CatalogMetadata(object):
     '''
     Manifest for a Catalog
     '''
+
     def __init__(self, catalog_path, read_only=False, start_index=0):
         path = Path(catalog_path)
         manifest_name = f'{path.stem}.catalog_manifest'
@@ -394,6 +396,7 @@ class ManifestIterator(object):
 
     Returns catalog entries lazily when a consumer calls __next__().
     """
+
     def __init__(self, manifest):
         self.manifest = manifest
         self.has_catalogs = len(self.manifest.catalog_paths) > 0
@@ -423,16 +426,17 @@ class ManifestIterator(object):
                 # underlying iterator.
                 current_index = self.current_index
                 self.current_index += 1
-                if current_index in self.manifest.deleted_indexes:
-                    # Skip over index, because it has been marked deleted
-                    continue
-                else:
-                    try:
-                        record = json.loads(contents)
+
+                try:
+                    record = json.loads(contents)
+                    if record['_index'] not in self.manifest.deleted_indexes:
+                        print(f'NOT deleted Record detected: {record["_index"]}')
                         return record
-                    except Exception:
-                        print(f'Ignoring record at index {current_index}')
-                        continue
+                    else:
+                        print(f'DELETED Record detected: {record["_index"]}')
+                except Exception:
+                    print(f'Ignoring record at index {current_index}')
+                    continue
             else:
                 self.current_catalog = None
                 self.current_catalog_index += 1
