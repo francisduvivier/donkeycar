@@ -77,6 +77,7 @@ DRIVE_TRAIN_TYPE = "I2C_SERVO"
 # Uses a PwmPin for steering (servo) and a second PwmPin for throttle (ESC)
 # Base PWM Frequence is presumed to be 60hz; use PWM_xxxx_SCALE to adjust pulse with for non-standard PWM frequencies
 #
+
 PWM_STEERING_THROTTLE = {
     "PWM_STEERING_PIN": "PCA9685.1:40.1",   # PWM output pin for steering servo
     "PWM_STEERING_SCALE": 1.0,              # used to compensate for PWM frequency differents from 60hz; NOT for adjusting steering range
