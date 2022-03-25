@@ -2,7 +2,15 @@ import cv2
 import numpy as np
 import logging
 from donkeycar.config import Config
+from pathlib import Path
+import os
 
+WRITE_RED_SELECT = True
+red_select_img_dir = os.path.abspath("red_select_img")
+if (WRITE_RED_SELECT):
+    red_select_img_dir_path = Path(red_select_img_dir)
+    print('red_select_img dir: ' + str(red_select_img_dir_path))
+    red_select_img_dir_path.mkdir(parents=True, exist_ok=True)
 
 logger = logging.getLogger(__name__)
 
@@ -11,8 +19,19 @@ logger = logging.getLogger(__name__)
 # TODO: remove this when https://github.com/autorope/donkeycar/issues/970
 #       is addressed.
 #
+red_select_index = 0
+
+
+def get_new_red_select_index():
+    global red_select_index
+    curr_i = red_select_index
+    red_select_index = red_select_index + 1
+    return curr_i
+
+
 try:
     import imgaug.augmenters as iaa
+
 
     class Augmentations(object):
         """
@@ -51,15 +70,22 @@ try:
                     mask = cv2.inRange(img, lower_red, upper_red)
                     res = cv2.bitwise_and(img, img, mask=mask)
                     transformed.append(res)
+                    if WRITE_RED_SELECT:
+                        file_name = red_select_img_dir + '/red_selected_' + str(get_new_red_select_index()) + '.jpg'
+                        try:
+                            cv2.imwrite(file_name, res)
+                            print('writing ' + file_name + ' succeeded')
+                        except Exception:
+                            print('writing ' + file_name + ' failed')
+                    return transformed
 
-                return transformed
-
-            def _transform_keypoints(keypoints_on_images, random_state,parents, hooks):
+            def _transform_keypoints(keypoints_on_images, random_state, parents, hooks):
                 return keypoints_on_images
 
             augmentation = iaa.Lambda(func_images=_transform_images,
                                       func_keypoints=_transform_keypoints)
             return augmentation
+
         @classmethod
         def trapezoidal_mask(cls, lower_left, lower_right, upper_left,
                              upper_right, min_y, max_y):
@@ -68,6 +94,7 @@ try:
             Especially useful in filtering out uninteresting features from an
             input image.
             """
+
             def _transform_images(images, random_state, parents, hooks):
                 # Transform a batch of images
                 transformed = []
@@ -106,6 +133,7 @@ try:
                                       func_keypoints=_transform_keypoints)
             return augmentation
 
+
     class ImageAugmentation:
         def __init__(self, cfg, key):
             aug_list = getattr(cfg, key, [])
@@ -135,12 +163,12 @@ try:
             elif aug_type == 'TRAPEZE':
                 logger.info(f'Creating augmentation {aug_type}')
                 return Augmentations.trapezoidal_mask(
-                            lower_left=config.ROI_TRAPEZE_LL,
-                            lower_right=config.ROI_TRAPEZE_LR,
-                            upper_left=config.ROI_TRAPEZE_UL,
-                            upper_right=config.ROI_TRAPEZE_UR,
-                            min_y=config.ROI_TRAPEZE_MIN_Y,
-                            max_y=config.ROI_TRAPEZE_MAX_Y)
+                    lower_left=config.ROI_TRAPEZE_LL,
+                    lower_right=config.ROI_TRAPEZE_LR,
+                    upper_left=config.ROI_TRAPEZE_UL,
+                    upper_right=config.ROI_TRAPEZE_UR,
+                    min_y=config.ROI_TRAPEZE_MIN_Y,
+                    max_y=config.ROI_TRAPEZE_MAX_Y)
 
             elif aug_type == 'RED':
                 logger.info(f'Creating augmentation {aug_type}')
