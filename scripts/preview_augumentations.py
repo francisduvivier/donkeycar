@@ -35,20 +35,20 @@ def preview_augmentations():
     while True:
         success, frame = capture.read()
         if success:
-            cropped = cropping.augment_image(frame)
-            masked = mask.augment_image(frame)
+            # cropped = cropping.augment_image(frame)
+            # masked = mask.augment_image(frame)
             red_selected = red_selecting.augment_image(frame)
-            # Convert to RGB
-            cv2.imshow('Preview', frame)
-            cv2.imshow('Cropped', cropped)
-            cv2.imshow('Trapezoidal Mask', masked)
-            cv2.imshow('RED Mask', red_selected)
-            prompt = cv2.waitKey(1) & 0xFF
-            if prompt == ord(' '):
-                # Store output
-                pass
-            elif prompt == ord('q'):
-                break
+            # # Convert to RGB
+            # cv2.imshow('Preview', frame)
+            # cv2.imshow('Cropped', cropped)
+            # cv2.imshow('Trapezoidal Mask', masked)
+            # cv2.imshow('RED Mask', red_selected)
+            # prompt = cv2.waitKey(1) & 0xFF
+            # if prompt == ord(' '):
+            #     # Store output
+            #     pass
+            # elif prompt == ord('q'):
+            #     break
 
     capture.release()
     cv2.destroyAllWindows()
