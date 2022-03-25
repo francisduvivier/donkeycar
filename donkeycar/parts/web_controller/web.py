@@ -255,7 +255,9 @@ class WebSocketDriveAPI(tornado.websocket.WebSocketHandler):
         if data.get('drive_mode') is not None:
             self.application.mode = data['drive_mode']
             self.application.mode_latch = self.application.mode
-        self.application.recording = data.get('recording', self.application.recording)
+        if data.get('recording') is not None:
+            self.application.recording = data['recording']
+            self.application.recording_latch = self.application.recording
 
     def on_close(self):
         # print("Client disconnected")
