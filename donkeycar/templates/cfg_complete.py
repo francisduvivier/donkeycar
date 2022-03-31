@@ -329,8 +329,8 @@ DC_TWO_WHEEL_L298N = {
 }
 
 #ODOMETRY
-HAVE_ODOM = False                   # Do you have an odometer/encoder
-ENCODER_TYPE = 'GPIO'            # What kind of encoder? GPIO|Arduino|Astar
+HAVE_ODOM = False                   # Do you have an odometer/encoder 
+ENCODER_TYPE = 'GPIO'            # What kind of encoder? GPIO|Arduino|Astar 
 MM_PER_TICK = 12.7625               # How much travel with a single tick, in mm. Roll you car a meter and divide total ticks measured by 1,000
 ODOM_PIN = 13                        # if using GPIO, which GPIO board mode pin to use as input
 ODOM_DEBUG = False                  # Write out values on vel and distance as it runs
@@ -376,7 +376,7 @@ PRUNE_EVAL_PERCENT_OF_DATASET = .05  # percent of dataset used to perform evalua
 
 # Augmentations and Transformations
 AUGMENTATIONS = []
-TRANSFORMATIONS = ['RED'] # Apply a red mask
+TRANSFORMATIONS = []
 # Settings for brightness and blur, use 'MULTIPLY' and/or 'BLUR' in
 # AUGMENTATIONS
 AUG_MULTIPLY_RANGE = (0.5, 3.0)
