@@ -4,10 +4,10 @@ import logging
 from donkeycar.config import Config
 from pathlib import Path
 import os
-
-WRITE_RED_SELECT = True
+import os
+CUSTOM_AUGMENTATION_WRITE_IMG = os.getenv("CUSTOM_AUGMENTATION_WRITE_IMG", 'False').lower() in ('true', '1', 't')
 red_select_img_dir = os.path.abspath("red_select_img")
-if (WRITE_RED_SELECT):
+if CUSTOM_AUGMENTATION_WRITE_IMG:
     red_select_img_dir_path = Path(red_select_img_dir)
     print('red_select_img dir: ' + str(red_select_img_dir_path))
     red_select_img_dir_path.mkdir(parents=True, exist_ok=True)
@@ -70,7 +70,7 @@ try:
                     mask = cv2.inRange(img, lower_red, upper_red)
                     res = cv2.bitwise_and(img, img, mask=mask)
                     transformed.append(res)
-                    if WRITE_RED_SELECT:
+                    if CUSTOM_AUGMENTATION_WRITE_IMG:
                         file_name = red_select_img_dir + '/red_selected_' + str(get_new_red_select_index()) + '.jpg'
                         try:
                             cv2.imwrite(file_name, res)
