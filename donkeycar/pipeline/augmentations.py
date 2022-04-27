@@ -64,7 +64,7 @@ try:
                 for image in images:
                     img = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
 
-                    lower_red = np.array([30, 150, 50])
+                    lower_red = np.array([30, 80, 50])
                     upper_red = np.array([255, 255, 180])
 
                     mask = cv2.inRange(img, lower_red, upper_red)
