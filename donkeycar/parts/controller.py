@@ -321,9 +321,6 @@ class RCReceiver:
 
     # check mode channel if present
     if (self.signals[2] - self.jitter) > 0:
-      if self.mode == 'user':
-        self.erase_last_N_records()
-      else:
         self.emergency_stop()
     else:
       # pass though value if provided
