@@ -247,7 +247,8 @@ class RCReceiver:
   def __init__(self, cfg, debug=False):
     import pigpio
     self.pi = pigpio.pi()
-
+    self.throttle_scale = cfg.JOYSTICK_MAX_THROTTLE
+    self.steering_scale = cfg.JOYSTICK_STEERING_SCALE
     # standard variables
     self.channels = [Channel(cfg.STEERING_RC_GPIO), Channel(cfg.THROTTLE_RC_GPIO), Channel(cfg.DATA_WIPER_RC_GPIO)]
     self.min_pwm = 1000
@@ -315,13 +316,16 @@ class RCReceiver:
       else:
         self.signals[i] += self.MIN_OUT
       i += 1
+    self.signals[0] *= self.throttle_scale
+    self.signals[1] *= self.steering_scale
+
     if self.debug:
       print('RC CH1 signal:', round(self.signals[0], 3), 'RC CH2 signal:', round(self.signals[1], 3), 'RC CH3 signal:',
             round(self.signals[2], 3))
 
     # check mode channel if present
     if (self.signals[2] - self.jitter) > 0:
-        self.emergency_stop()
+      self.emergency_stop()
     else:
       # pass though value if provided
       self.mode = mode if mode is not None else 'user'
@@ -341,7 +345,7 @@ class RCReceiver:
     '''
     print('E-Stop!!!')
     self.mode = "user"
-    self.signals[0] = 0
+    self.signals[0] = -0.3
     self.signals[1] = 0
     return self.signals[0], self.signals[1], self.mode, False
 
