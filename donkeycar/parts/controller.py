@@ -262,6 +262,7 @@ class RCReceiver:
     self.debug = debug
     self.mode = 'user'
     self.lastSideButtonState = None
+    self.emergency_stopped = False
     self.is_action = False
     self.invert = cfg.PIGPIO_INVERT
     self.jitter = cfg.PIGPIO_JITTER
