@@ -21,6 +21,7 @@ import donkeycar as dk
 from donkeycar.utils import normalize_image, linear_bin
 from donkeycar.pipeline.types import TubRecord
 from donkeycar.parts.interpreter import Interpreter, KerasInterpreter
+from donkeycar.postProcessor import postProcessAngleThrottle
 
 import tensorflow as tf
 from tensorflow import keras
@@ -107,7 +108,8 @@ class KerasPilot(ABC):
         """
         norm_arr = normalize_image(img_arr)
         np_other_array = np.array(other_arr) if other_arr else None
-        return self.inference(norm_arr, np_other_array)
+        (angle, throttle) = self.inference(norm_arr, np_other_array)
+        return postProcessAngleThrottle(angle, throttle)
 
     def inference(self, img_arr: np.ndarray, other_arr: Optional[np.ndarray]) \
             -> Tuple[Union[float, np.ndarray], ...]:
