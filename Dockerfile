@@ -1,19 +1,17 @@
-FROM python:3.9
+FROM python:3.7
 
 WORKDIR /app
 
 # install donkey with tensorflow (cpu only version)
-RUN wget https://repo.anaconda.com/miniconda/Miniconda3-py39_23.1.0-1-Linux-x86_64.sh
-RUN chmod +x Miniconda3-py39_23.1.0-1-Linux-x86_64.sh && bash ./Miniconda3-py39_23.1.0-1-Linux-x86_64.sh  -b -p /root/miniconda
-RUN /root/miniconda/bin/conda install -y -c conda-forge cudatoolkit=11.6.* cudnn=8.1.0
+RUN wget https://repo.anaconda.com/miniconda/Miniconda3-py37_23.1.0-1-Linux-x86_64.sh
+RUN chmod +x Miniconda3-py37_23.1.0-1-Linux-x86_64.sh && bash ./Miniconda3-py37_23.1.0-1-Linux-x86_64.sh   -b -p /root/miniconda
 RUN /root/miniconda/bin/conda init bash
 #SHELL ["/bin/bash", "--rcfile","/root/.bashrc","-c"]
 SHELL ["/root/miniconda/bin/conda", "run", "/bin/bash", "-c"]
-RUN conda install -y pytorch pytorch-cuda=11.6 -c pytorch -c nvidia
+RUN conda install -y -c conda-forge cudatoolkit=11.2.* cudnn=8.1.0 tensorflow==2.9.*
 RUN echo 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CONDA_PREFIX/lib/'>> /root/.bashrc
 
-RUN /root/miniconda/bin/conda install -y tensorflow==2.9.* torchvision 
-RUN pip install fastai
+#RUN pip install fastai
 ADD ./setup.py /app/setup.py
 ADD ./README.md /app/README.md
 
