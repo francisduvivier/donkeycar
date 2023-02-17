@@ -7,8 +7,12 @@ WORKDIR /app
 RUN conda update -n base -c defaults conda
 
 RUN conda install mamba -n base -c conda-forge 
+
+# add the whole app dir after install so the pip install isn't updated when code changes.
 ADD . /app
 WORKDIR /app
+
+#Follow donkeycar linux host instllation instructions
 RUN mamba env create -f install/envs/ubuntu.yml
 RUN echo 'conda activate donkey'>> /root/.bashrc
 SHELL ["conda", "run", "-n", "donkey", "/bin/bash", "-c"]
@@ -30,13 +34,6 @@ RUN jupyter notebook --generate-config
 RUN echo "c.NotebookApp.password = ''">>/root/.jupyter/jupyter_notebook_config.py
 RUN echo "c.NotebookApp.token = ''">>/root/.jupyter/jupyter_notebook_config.py
 
-# add the whole app dir after install so the pip install isn't updated when code changes.
-
-#start the jupyter notebook
-
-RUN echo "jupyter notebook --no-browser --ip 0.0.0.0 --port 8887 --allow-root  --notebook-dir=/app/notebooks" > /app/start.sh
-RUN chmod +x /app/start.sh
-ENTRYPOINT /app/start.sh
 
 #port for donkeycar
 EXPOSE 8887
@@ -44,3 +41,10 @@ EXPOSE 8887
 #port for jupyter notebook
 EXPOSE 8888
 
+#start the jupyter notebook
+RUN echo "jupyter notebook --no-browser --ip 0.0.0.0 --port 8888 --allow-root  --notebook-dir=/app/airace/notebooks" > /app/start.sh
+RUN chmod +x /app/start.sh
+ENTRYPOINT conda run -n donkey /app/start.sh
+
+# Use this with: 
+# docker run -d -p 8888:8888 -p 8887:8887 --gpus all --name donkey-container --shm-size=64 -v /home/local_sqs-ai/airace:/app/airace donkey-cuda
