@@ -1,0 +1,12 @@
+version: '3'
+services:
+  donkey-container:
+    image: donkey-cuda-jupyterlab
+    ports:
+      - "8888:8888"
+      - "8887:8887"
+    runtime: nvidia
+    shm_size: '64M'
+    volumes:
+      - /home/local_sqs-ai/airace:/app/airace
+    restart: unless-stopped
