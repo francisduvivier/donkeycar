@@ -35,8 +35,10 @@ RUN pip install ipywidgets   # for additional jupyter functionalities
 RUN conda create --name python38 python=3.8
 # Install jupyter lab in python38 environment in order to make nb_conda_kernels work
 SHELL ["conda", "run", "-n", "python38", "/bin/bash", "-c"]
-RUN conda install -c conda-forge jupyterlab
-RUN conda install -c conda-forge ipywidgets   # for additional jupyter functionalities
+RUN pip install jupyterlab 
+# for additional jupyter functionalities
+RUN pip install ipywidgets   
+# for making conda environments with ipykernal installed show up automatically
 RUN conda install -c conda-forge nb_conda_kernels
 
 # setup jupyter notebook to run without password
@@ -61,4 +63,4 @@ ENTRYPOINT /app/start.sh
 # docker build . -t donkey-cuda-jupyterlab  
 # To run do:
 # docker-compose up -d 
-
+# or docker run -d -p 8888:8888 -p 8887:8887 --gpus all --name donkey-container --shm-size=64 -v /home/local_sqs-ai/airace:/app/airace donkey-cuda-jupyterlab
