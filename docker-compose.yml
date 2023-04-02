@@ -2,16 +2,13 @@ version: '3.9'
 services:
   donkey-container:
     image: donkey-cuda-jupyterlab
-    devices:
-      - /dev/nvidia0
-      - /dev/nvidiactl
-      - /dev/nvidia-modeset
     ports:
       - "8888:8888"
       - "8887:8887"
     shm_size: '64M'
     volumes:
-      - /home/local_sqs-ai/airace:/app/airace
+      - /home/local_sqs-ai/airace:/airace
+      - /home/local_sqs-ai/airace/Race2TheFuture__donkeycar:/app
     restart: unless-stopped
     deploy:
       resources:

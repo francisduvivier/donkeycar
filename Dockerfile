@@ -1,25 +1,35 @@
-FROM continuumio/miniconda3:4.5.11
-# python 3.6
+FROM continuumio/miniconda3:22.11.1
 
 WORKDIR /app
-
-# install donkey with tensorflow (cpu only version)
-RUN conda update -n base -c defaults conda
 
 RUN conda install mamba -n base -c conda-forge 
 
+#RUN mamba env create --name python38 python=3.8
+# Install jupyter lab in python38 environment in order to make nb_conda_kernels work
+RUN mamba install jupyterlab 
+# for additional jupyter functionalities
+RUN mamba install ipywidgets   
+# for making conda environments with ipykernal installed show up automatically
+RUN mamba install nb_conda_kernels
+
+# setup jupyter notebook to run without password
+RUN jupyter notebook --generate-config
+RUN echo "c.NotebookApp.password = ''">>/root/.jupyter/jupyter_notebook_config.py
+RUN echo "c.NotebookApp.token = ''">>/root/.jupyter/jupyter_notebook_config.py
+
+
 # add the whole app dir after install so the pip install isn't updated when code changes.
 ADD ./install /app/install
-WORKDIR /app
 
 #Follow donkeycar linux host instllation instructions
 RUN mamba env create -f install/envs/ubuntu.yml
-SHELL ["conda", "run", "-n", "donkey", "/bin/bash", "-c"]
+SHELL ["mamba", "run", "-n", "donkey", "/bin/bash", "-c"]
 
-ADD . /app
+ADD ./setup* /app/
+ADD ./README.md /app/
 RUN pip install -e .[pc]
 # RUN pip install -I --pre torch -f https://download.pytorch.org/whl/nightly/cu113/torch_nightly.html # We are actually not using torch, and training didn't fully work with this yet so disabling it for now
-RUN conda install tensorflow-gpu==2.2.0
+RUN mamba install tensorflow-gpu==2.2.0
 
 #RUN pip install fastai
 ADD ./setup.py /app/setup.py
@@ -29,24 +39,10 @@ ADD ./README.md /app/README.md
 RUN pip install -e .[dev]
 
 # Install and ipykernel so we can use this conda environment in jupyter notebooks
-RUN pip install ipykernel
-RUN pip install ipywidgets   # for additional jupyter functionalities
+RUN mamba install ipykernel
+RUN mamba install ipywidgets   # for additional jupyter functionalities
  
-RUN conda create --name python38 python=3.8
-# Install jupyter lab in python38 environment in order to make nb_conda_kernels work
-SHELL ["conda", "run", "-n", "python38", "/bin/bash", "-c"]
-RUN pip install jupyterlab 
-# for additional jupyter functionalities
-RUN pip install ipywidgets   
-# for making conda environments with ipykernal installed show up automatically
-RUN conda install -c conda-forge nb_conda_kernels
-
-# setup jupyter notebook to run without password
-RUN jupyter notebook --generate-config
-RUN echo "c.NotebookApp.password = ''">>/root/.jupyter/jupyter_notebook_config.py
-RUN echo "c.NotebookApp.token = ''">>/root/.jupyter/jupyter_notebook_config.py
-
-
+# set donkey env as default kernel in jupyter notebooks
 #port for donkeycar
 EXPOSE 8887
 
@@ -54,13 +50,15 @@ EXPOSE 8887
 EXPOSE 8888
 
 
+SHELL ["mamba", "run", "-n", "base", "/bin/bash", "-c"]
+RUN jupyter kernelspec remove python3 -y
+RUN echo "c.MultiKernelManager.default_kernel_name = 'conda-env-donkey-py'">>/root/.jupyter/jupyter_notebook_config.py
 #start the jupyter notebook
-RUN echo "conda run -n python38 jupyter lab --no-browser --ip 0.0.0.0 --port 8888 --allow-root  --notebook-dir=/app/airace/notebooks" > /app/start.sh
-RUN chmod +x /app/start.sh
-ENTRYPOINT /app/start.sh
+ENTRYPOINT ["jupyter"]
+CMD ["lab","--no-browser","--ip","0.0.0.0","--port","8888","--allow-root","--notebook-dir", "/airace"]
+#ENTRYPOINT "sh"
 
 # To build, do: 
 # docker build . -t donkey-cuda-jupyterlab  
 # To run do:
 # docker-compose up -d 
-# or docker run -d -p 8888:8888 -p 8887:8887 --gpus all --name donkey-container --shm-size=64 -v /home/local_sqs-ai/airace:/app/airace donkey-cuda-jupyterlab
