@@ -1,0 +1,7 @@
+.git
+Dockerfile
+*.swp
+**/__pycache__
+**/*.pyc
+.ipynb_checkpoints
+

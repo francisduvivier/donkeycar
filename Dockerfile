@@ -18,7 +18,7 @@ RUN echo 'conda activate donkey'>> /root/.bashrc
 SHELL ["conda", "run", "-n", "donkey", "/bin/bash", "-c"]
 
 RUN pip install -e .[pc]
-RUN pip install -I --pre torch -f https://download.pytorch.org/whl/nightly/cu113/torch_nightly.html
+# RUN pip install -I --pre torch -f https://download.pytorch.org/whl/nightly/cu113/torch_nightly.html # We are actually not using torch, and training didn't fully work with this yet so disabling it for now
 RUN conda install tensorflow-gpu==2.2.0
 
 #RUN pip install fastai
