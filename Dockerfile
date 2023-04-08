@@ -44,10 +44,11 @@ RUN echo "c.NotebookApp.token = ''">>/root/.jupyter/jupyter_notebook_config.py
 EXPOSE 8887
 EXPOSE 8888
 
-# Start Jupyter Notebook
-ENTRYPOINT ["conda","run","-n", "donkey"]
-CMD ["jupyter", "lab","--no-browser","--ip","0.0.0.0","--port","8888","--allow-root","--notebook-dir", "/airace"]
+# Set the entrypoint to start JupyterLab with the activated donkey environment
+ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "donkey", "jupyter", "lab"]
 
+# Set the default command to start JupyterLab with --allow-root
+CMD ["--ip=0.0.0.0", "--port=8888", "--no-browser", "--notebook-dir=/airace", "--allow-root"]
 # Instructions to build the Docker image and run the container
 # To build, run the following command: docker build . -t donkey-cuda-jupyterlab
 # To run, use docker-compose up -d 
