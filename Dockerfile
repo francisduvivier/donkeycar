@@ -23,9 +23,6 @@ ADD ./README.md /app/
 # Install required packages with pip
 RUN pip install --prefer-binary -e .[pc]
 
-# Install TensorFlow GPU version
-RUN mamba install tensorflow-gpu==2.9.0 -c conda-forge
-
 # Install testing requirements
 RUN pip install -e .[dev]
 
