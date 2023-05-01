@@ -17,15 +17,28 @@ RUN pip install --prefer-binary -e .[pc]
 # Install testing requirements
 RUN pip install -e .[dev]
 
+# install torch version specified by donkey setup.py
+# TODO RUN pip install --prefer-binary -e .[torch]
+
+# Install JupyterLab and related extensions
+RUN pip install --prefer-binary jupyterlab jupyter_contrib_nbextensions ipywidgets nodejs jupyterlab_execute_time
+
 # Configure Jupyter Notebook to run without password
 RUN jupyter notebook --generate-config
 RUN echo "c.NotebookApp.password = ''">>/root/.jupyter/jupyter_notebook_config.py
 RUN echo "c.NotebookApp.token = ''">>/root/.jupyter/jupyter_notebook_config.py
 
+RUN pip install --upgrade notebook nbformat==5.2
+
 # Expose ports for Donkey car and Jupyter Notebook
 EXPOSE 8887
 EXPOSE 8888
 
-# To build, run the following command: docker build . -t donkey-cuda-jupyter
-# To run, use docker-compose up -d 
+# Set the entrypoint to start JupyterLab with the activated donkey environment
+ENTRYPOINT ["jupyter", "lab"]
 
+# Set the default command to start JupyterLab with --allow-root
+CMD ["--ip=0.0.0.0", "--port=8888", "--no-browser", "--notebook-dir=/airace", "--preferred-dir=/airace/Race2TheFuture/notebooks", "--allow-root"]
+# Instructions to build the Docker image and run the container
+# To build, run the following command: docker build . -t donkey-cuda-jupyterlab
+# To run, use docker-compose up -d 
