@@ -27,10 +27,7 @@ RUN pip install --prefer-binary -e .[pc]
 RUN pip install -e .[dev]
 
 # Install JupyterLab and related extensions
-RUN mamba install jupyterlab ipywidgets nb_conda_kernels jupyter_contrib_nbextensions nodejs jupyterlab_execute_time -c conda-forge
-
-# Install and enable JupyterLab execute time
-RUN jupyter contrib nbextension install --user
+RUN mamba install jupyterlab jupyter_contrib_nbextensions ipywidgets nb_conda_kernels nodejs jupyterlab_execute_time -c conda-forge
 
 # Configure Jupyter Notebook to run without password
 RUN jupyter notebook --generate-config
