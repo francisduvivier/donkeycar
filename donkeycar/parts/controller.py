@@ -232,7 +232,7 @@ class PyGameJoystick(object):
                 iBtn += 1
 
         return button, button_state, axis, axis_val
-        
+
     def set_deadzone(self, val):
         self.dead_zone = val
 
@@ -246,11 +246,11 @@ class Channel:
 class RCReceiver:
     MIN_OUT = -1
     MAX_OUT = 1
-    def __init__(self, cfg, throttle_scale=1.0, steering_scale=1.0, debug=False):
+    def __init__(self, cfg, debug=False):
         import pigpio
         self.pi = pigpio.pi()
-        self.throttle_scale = throttle_scale
-        self.steering_scale = steering_scale
+        self.throttle_scale = cfg.JOYSTICK_MAX_THROTTLE
+        self.steering_scale = cfg.JOYSTICK_STEERING_SCALE
         # standard variables
         self.channels = [Channel(cfg.STEERING_RC_GPIO), Channel(cfg.THROTTLE_RC_GPIO), Channel(cfg.DATA_WIPER_RC_GPIO)]
         self.min_pwm = 1000
@@ -276,7 +276,7 @@ class RCReceiver:
             self.cbs.append(self.pi.callback(channel.pin, pigpio.EITHER_EDGE, self.cbf))
             if self.debug:
                 logger.info(f'RCReceiver gpio {channel.pin} created')
-    
+
 
     def cbf(self, gpio, level, tick):
         import pigpio
@@ -289,11 +289,11 @@ class RCReceiver:
         :param tick: # of mu s since boot, 32 bit int
         """
         for channel in self.channels:
-            if gpio == channel.pin:            
-                if level == 1:                
-                    channel.high_tick = tick            
-                elif level == 0:                
-                    if channel.high_tick is not None:                    
+            if gpio == channel.pin:
+                if level == 1:
+                    channel.high_tick = tick
+                elif level == 0:
+                    if channel.high_tick is not None:
                         channel.tick = pigpio.tickDiff(channel.high_tick, tick)
 
     def toggle_mode(self):
@@ -344,14 +344,14 @@ class RCReceiver:
             logger.info(f'RC CH1 signal:{round(self.signals[0], 3)}, RC CH2 signal:{round(self.signals[1], 3)}, RC CH3 signal:{round(self.signals[2], 3)}')
 
         # check mode channel if present
-        if (self.signals[2] - self.jitter) > 0:  
+        if (self.signals[2] - self.jitter) > 0:
             self.mode = 'local'
         else:
             # pass though value if provided
             self.mode = mode if mode is not None else 'user'
 
         # check throttle channel
-        if ((self.signals[1] - self.jitter) > 0) and self.RECORD: # is throttle above jitter level? If so, turn on auto-record 
+        if ((self.signals[1] - self.jitter) > 0) and self.RECORD: # is throttle above jitter level? If so, turn on auto-record
             is_action = True
         else:
             # pass through default value
@@ -396,7 +396,7 @@ class JoystickCreator(Joystick):
 class PS3JoystickSixAd(Joystick):
     '''
     An interface to a physical PS3 joystick available at /dev/input/js0
-    Contains mapping that worked for Jetson Nano using sixad for PS3 controller's connection 
+    Contains mapping that worked for Jetson Nano using sixad for PS3 controller's connection
     '''
     def __init__(self, *args, **kwargs):
         super(PS3JoystickSixAd, self).__init__(*args, **kwargs)
@@ -420,7 +420,7 @@ class PS3JoystickSixAd(Joystick):
             0x121 : 'L3',
             0x122 : 'R3',
 
-            0x12c : "triangle", 
+            0x12c : "triangle",
             0x12d : "circle",
             0x12e : "cross",
             0x12f : 'square',
@@ -478,7 +478,7 @@ class PS3JoystickOld(Joystick):
             0x121 : 'L3',
             0x122 : 'R3',
 
-            0x12c : "triangle", 
+            0x12c : "triangle",
             0x12d : "circle",
             0x12e : "cross",
             0x12f : 'square',
