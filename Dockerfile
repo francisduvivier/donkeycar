@@ -1,11 +1,12 @@
 # Use the Miniconda 3 base image as a starting point
 FROM tensorflow/tensorflow:2.9.3-gpu-jupyter
 
-RUN curl -o miniconda_installer.sh https://repo.anaconda.com/miniconda/Miniconda3-py38_23.3.1-0-Linux-x86_64.sh
-RUN miniconda_installer.sh:
+RUN curl https://repo.anaconda.com/miniconda/Miniconda3-py38_23.3.1-0-Linux-x86_64.sh -o /tmp/miniconda_installer.sh
+RUN chmod +x /tmp/miniconda_installer.sh
+RUN /tmp/miniconda_installer.sh -b
 # Set the working directory to /app
 WORKDIR /app
-
+ENV PATH=/root/miniconda3/bin:$PATH
 # Install Mamba package manager for faster dependency resolution
 RUN conda install mamba -n base -c conda-forge
 
@@ -27,9 +28,6 @@ RUN pip install --prefer-binary -e .[pc]
 
 # Install testing requirements
 RUN pip install -e .[dev]
-
-# install torch version specified by donkey setup.py
-# TODO RUN pip install --prefer-binary -e .[torch]
 
 # Install JupyterLab and related extensions
 RUN mamba install jupyterlab jupyter_contrib_nbextensions ipywidgets nb_conda_kernels nodejs jupyterlab_execute_time -c conda-forge
