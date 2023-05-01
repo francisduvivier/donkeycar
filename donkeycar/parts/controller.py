@@ -246,10 +246,11 @@ class Channel:
 class RCReceiver:
     MIN_OUT = -1
     MAX_OUT = 1
-    def __init__(self, cfg, debug=False):
+    def __init__(self, cfg, throttle_scale=1.0, steering_scale=1.0, debug=False):
         import pigpio
         self.pi = pigpio.pi()
-
+        self.throttle_scale = throttle_scale
+        self.steering_scale = steering_scale
         # standard variables
         self.channels = [Channel(cfg.STEERING_RC_GPIO), Channel(cfg.THROTTLE_RC_GPIO), Channel(cfg.DATA_WIPER_RC_GPIO)]
         self.min_pwm = 1000
