@@ -303,15 +303,19 @@ class RCReceiver:
         local_angle: ai steering, human throttle
         local: ai steering, ai throttle
         '''
+        print(f'toggle_mode: BEFORE self.emergency_stopped: {self.emergency_stopped}')
+        print(f'toggle_mode: BEFORE self.mode: {self.mode}')
         if (self.emergency_stopped):
           self.emergency_stopped = False
         elif self.mode == 'user':
           self.mode = 'local'
         elif self.mode == 'local':
+          self.emergency_stop_start = time.time()
           self.emergency_stopped = True
         else:
           self.mode = 'user'
-        print('new mode:', self.mode)
+        print(f'toggle_mode: AFTER self.emergency_stopped: {self.emergency_stopped}')
+        print(f'toggle_mode: AFTER self.mode: {self.mode}')
 
     def pulse_width(self, high):
         """
@@ -344,11 +348,12 @@ class RCReceiver:
             logger.info(f'RC CH1 signal:{round(self.signals[0], 3)}, RC CH2 signal:{round(self.signals[1], 3)}, RC CH3 signal:{round(self.signals[2], 3)}')
 
         # check mode channel if present
-        if (self.signals[2] - self.jitter) > 0:
-            self.mode = 'local'
-        else:
-            # pass though value if provided
-            self.mode = mode if mode is not None else 'user'
+        newSideButtonState = (self.signals[2] - self.jitter) > 0
+        if self.lastSideButtonState is not None and self.lastSideButtonState != newSideButtonState:
+            self.toggle_mode()
+        self.lastSideButtonState = newSideButtonState
+        if self.emergency_stopped:
+            return self.emergency_stop()
 
         # check throttle channel
         if ((self.signals[1] - self.jitter) > 0) and self.RECORD: # is throttle above jitter level? If so, turn on auto-record
@@ -365,7 +370,12 @@ class RCReceiver:
         print('In Emergency stop mode, press sidebutton!!! ' + str(time.time()))
         self.mode = "user"
         self.signals[0] = 0
-        self.signals[1] = -0.3
+        should_give_negative = False
+        if time.time() - self.emergency_stop_start < 0.5 and time.time() - self.emergency_stop_start>0.1:
+            print('emergency stop: going backward for 0.5 seconds stopping more quickly')
+            self.signals[1] = -0.3
+        else:
+            self.signals[1] = 0
         return self.signals[0], self.signals[1], self.mode, False
 
     def shutdown(self):
