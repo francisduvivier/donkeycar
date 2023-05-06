@@ -438,7 +438,7 @@ class ManifestIterator(object):
                 self.current_index += 1
                 try:
                     record = json.loads(contents)
-                    if record['_index'] != current_index:
+                    if '_index' in record and record['_index'] != current_index:
                         logger.warning(
                             f'Correcting current_index because record index [{record["_index"]}] '
                             f'is not matching the current_index [{self.current_index}].')
