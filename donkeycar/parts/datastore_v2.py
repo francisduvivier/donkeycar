@@ -424,7 +424,9 @@ class ManifestIterator(object):
                                                read_only=self.manifest.read_only)
                 catalog_start_index = self.current_catalog.manifest.start_index()
                 if catalog_start_index is not None and self.current_index != catalog_start_index:
-                    logger.warning(f'Correcting current_index because Catalog [{catalog_path}] start_index [{catalog_start_index}] is not matching the current_index [{self.current_index}].')
+                    logger.warning(f'Correcting current_index because Catalog [{catalog_path}] '
+                                   f'start_index [{catalog_start_index}] is not matching the '
+                                   f'current_index [{self.current_index}].')
                     self.current_index = catalog_start_index
                 self.current_catalog.seekable.seek_line_start(1)
 
@@ -438,7 +440,8 @@ class ManifestIterator(object):
                     record = json.loads(contents)
                     if record['_index'] != current_index:
                         logger.warning(
-                            f'Correcting current_index because record index [{record["_index"]}] is not matching the current_index [{self.current_index}].')
+                            f'Correcting current_index because record index [{record["_index"]}] '
+                            f'is not matching the current_index [{self.current_index}].')
                         self.current_index = record['_index'] + 1
                     if current_index in self.manifest.deleted_indexes:
                         # Skip over index, because it has been marked deleted
